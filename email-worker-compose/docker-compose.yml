@@ -3,7 +3,8 @@ volumes:
   dados:
 networks:
   banco:
-  web:  
+  web:
+  fila:  
 services: 
     db:
         image: postgres:9.6
@@ -44,6 +45,24 @@ services:
         networks: 
             - banco
             - web
+            - fila
         depends_on: 
             - db
+            - queue
+    queue:
+        image: redis:3.2
+        networks: 
+            - fila
+    worker:
+        build: worker
+        volumes: 
+            # Worker
+            - ./worker:/worker
+        working_dir: /worker
+        command: worker.py
+        networks: 
+            - fila
+        depends_on: 
+            - queue
+
             
